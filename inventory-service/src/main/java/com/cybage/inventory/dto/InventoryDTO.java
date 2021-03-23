@@ -8,7 +8,8 @@ import com.cybage.inventory.models.Inventory;
 /*
  * Inventory 
  */
-public class InventoryDTO implements Serializable {
+public class InventoryDTO implements Serializable
+{
 	private Long inventoryId;
 	private String inventoryName;
 	private Integer quantity;

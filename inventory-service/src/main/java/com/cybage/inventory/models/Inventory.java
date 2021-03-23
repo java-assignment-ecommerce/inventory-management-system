@@ -17,6 +17,7 @@ import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Getter
@@ -24,6 +25,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @NoArgsConstructor
 @Entity
+@ToString
 public class Inventory implements Serializable {
 	/**
 	 * 
@@ -31,7 +33,7 @@ public class Inventory implements Serializable {
 	private static final long serialVersionUID = 2298375083377697514L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@NotNull
+//	@NotNull
 	private Long inventoryId;
 	@Column(nullable = false)
 	@Size(min = 1)

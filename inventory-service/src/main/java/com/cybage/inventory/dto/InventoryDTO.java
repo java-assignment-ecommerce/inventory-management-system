@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 
 import com.cybage.inventory.models.Inventory;
 
+/*
+ * Inventory 
+ */
 public class InventoryDTO implements Serializable {
 	private Long inventoryId;
 	private String inventoryName;
@@ -59,11 +62,11 @@ public class InventoryDTO implements Serializable {
 		this.quantity = quantity;
 	}
 
-	public LocalDateTime getcreateTime() {
+	public LocalDateTime getCreateTime() {
 		return createTime;
 	}
 
-	public void setcreateTime(LocalDateTime createTime) {
+	public void setCreateTime(LocalDateTime createTime) {
 		this.createTime = createTime;
 	}
 

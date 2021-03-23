@@ -18,9 +18,9 @@ public class InventoryConfig {
 	public RestTemplate getRestTemplate() {
 		return new RestTemplate();
 	}
-	
+
 	@Bean
-    public MethodValidationPostProcessor methodValidationPostProcessor() {
-         return new MethodValidationPostProcessor();
-    }
+	public MethodValidationPostProcessor methodValidationPostProcessor() {
+		return new MethodValidationPostProcessor();
+	}
 }

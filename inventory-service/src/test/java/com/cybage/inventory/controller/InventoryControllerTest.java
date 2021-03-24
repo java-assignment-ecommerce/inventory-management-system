@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -110,7 +111,10 @@ public class InventoryControllerTest {
 
 	@Test
 	public void testGetAllInventory_2() throws Exception {
-		mockMvc.perform(get("/inventory").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNoContent())
+		List<InventoryDTO> inventories = new ArrayList<>();
+		Mockito.when(inventoryService.listAll()).thenReturn(inventories);
+		
+		mockMvc.perform(get(getLocalhostURL()).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNoContent())
 				.andReturn();
 
 	}

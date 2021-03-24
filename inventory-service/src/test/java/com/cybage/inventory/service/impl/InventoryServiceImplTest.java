@@ -29,7 +29,7 @@ import com.cybage.inventory.utils.InventoryTestData;
 
 @RunWith(SpringRunner.class)
 //@RunWith(MockitoJUnitRunner.class)
-@SpringBootTest
+//@SpringBootTest
 public class InventoryServiceImplTest {
 
 	@Mock

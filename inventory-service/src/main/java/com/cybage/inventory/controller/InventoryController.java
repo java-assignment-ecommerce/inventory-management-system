@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.PositiveOrZero;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +26,9 @@ import com.cybage.inventory.exception.InvalidDataException;
 import com.cybage.inventory.models.Inventory;
 import com.cybage.inventory.service.InventoryService;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 @RestController
 @RequestMapping("inventory")
 //@Validated
@@ -38,7 +40,7 @@ public class InventoryController {
 
 	@GetMapping
 	public ResponseEntity<List<InventoryDTO>> getAllInventory() {
-
+		log.info("Request to fetch all inventories");
 		List<InventoryDTO> inventory = inventoryService.listAll();
 		if (inventory.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -49,12 +51,15 @@ public class InventoryController {
 	}
 
 	@GetMapping("/{inventoryId}")
-	public ResponseEntity<InventoryDTO> getInventoryByid(@Valid @PositiveOrZero @PathVariable Long inventoryId) {
+	public ResponseEntity<InventoryDTO> getInventoryById(@PathVariable Long inventoryId) {
+		log.info("Request to gefetch inventory with id : {}", inventoryId);
 		return new ResponseEntity<>(inventoryService.get(inventoryId), HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<?> addInventory(@Valid @RequestBody Inventory inventory, Errors errors) {
+	public ResponseEntity<InventoryDTO> addInventory(@Valid @RequestBody Inventory inventory, Errors errors) {
+
+		log.info("Request to create a new inventory");
 		if (errors.hasErrors()) {
 
 			List<FieldError> ferrs = errors.getFieldErrors();
@@ -63,13 +68,14 @@ public class InventoryController {
 
 			throw new InvalidDataException(errMap);
 		}
-		inventoryService.save(inventory);
-		return new ResponseEntity<>(HttpStatus.CREATED);
+
+		return new ResponseEntity<>(inventoryService.save(inventory), HttpStatus.CREATED);
 
 	}
 
 	@PutMapping
 	public ResponseEntity<?> updateInventory(@Valid @RequestBody Inventory inventory, Errors errors) {
+		log.info("Request to update inventory with id : {}", inventory.getInventoryId());
 		if (errors.hasErrors()) {
 
 			List<FieldError> ferrs = errors.getFieldErrors();
@@ -85,6 +91,7 @@ public class InventoryController {
 	@DeleteMapping("{inventoryId}")
 	public ResponseEntity<?> deleteInventoryById(@PathVariable @Min(1) Long inventoryId) {
 
+		log.info("Request to delete inventory with id : {}", inventoryId);
 		inventoryService.delete(inventoryId);
 		return new ResponseEntity<>(HttpStatus.OK);
 

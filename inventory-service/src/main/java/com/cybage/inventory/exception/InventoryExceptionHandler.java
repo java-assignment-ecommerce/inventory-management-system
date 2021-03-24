@@ -19,8 +19,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
+import lombok.extern.log4j.Log4j2;
+
 //@Order(Ordered.LOWEST_PRECEDENCE)
 
+@Log4j2
 @ControllerAdvice
 @ResponseBody
 public class InventoryExceptionHandler extends ResponseEntityExceptionHandler {
@@ -29,10 +32,11 @@ public class InventoryExceptionHandler extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
 
-		String errorMessage2 = MessageFormat.format(ErrorConstants.TYPE_MISMATCH_ERROR_MESSAGE,
+		String errorMessage = MessageFormat.format(ErrorConstants.TYPE_MISMATCH_ERROR_MESSAGE,
 				ex.getMostSpecificCause().getMessage());
 
-		ErrorMessage message = new ErrorMessage(ErrorConstants.TYPE_MISMATCH_ERROR_CODE, new Date(), errorMessage2,
+		log.error(errorMessage);
+		ErrorMessage message = new ErrorMessage(ErrorConstants.TYPE_MISMATCH_ERROR_CODE, new Date(), errorMessage,
 				request.getDescription(false));
 		return new ResponseEntity<Object>(message, HttpStatus.BAD_REQUEST);
 
@@ -41,37 +45,33 @@ public class InventoryExceptionHandler extends ResponseEntityExceptionHandler {
 	@Override
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
+
 		String errorMessage = null;
 		if (ex.getCause() instanceof InvalidFormatException) {
 
 			InvalidFormatException ife = (InvalidFormatException) ex.getCause();
-			logger.warn("Handling exception due to bad data ", ife);
-//			  errorMessage = ErrorConstants.MESSAGE_NOT_READABLE_ERROR_MESSAGE;
+			log.warn("Handling exception due to bad data ", ife);
 			try {
 				errorMessage = MessageFormat.format(ErrorConstants.NOT_READABLE_ERROR_MESSAGE,
 						CollectionUtils.isEmpty(ife.getPath()) ? "" : ife.getPath().get(0).getFieldName());
 			} catch (Exception e) {
-				logger.warn("Exception while constructing error message. Ignoring ", e);
+				log.error("Exception while constructing error message. Ignoring ", e);
 			}
-
 			return formatErrorResponseForHttpMessageNotReadable(errorMessage, request);
+
 		} else if (ex.getCause() instanceof JsonParseException) {
 
 			JsonParseException jpe = (JsonParseException) ex.getCause();
-
-			logger.warn("Handling exception due to bad data ", jpe);
-			// String errorMessage2 ;//=
-			// ErrorConstants.MESSAGE_NOT_READABLE_ERROR_MESSAGE;
-
+			log.warn("Handling exception due to bad data ", jpe);
 			try {
 				errorMessage = MessageFormat.format(ErrorConstants.NOT_READABLE_ERROR_MESSAGE,
 						jpe.getProcessor().getCurrentName());
 
 			} catch (IOException e) {
-				logger.error("Failed to get the current name for JsonParser processor ", e);
+				log.error("Failed to get the current name for JsonParser processor ", e);
 			}
-
 			return formatErrorResponseForHttpMessageNotReadable(errorMessage, request);
+
 		} else {
 			return super.handleHttpMessageNotReadable(ex, headers, status, request);
 		}
@@ -79,6 +79,7 @@ public class InventoryExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(RecordNotFoundException.class)
 	public ResponseEntity<?> resourceNotFoundException(RecordNotFoundException ex, WebRequest request) {
+		log.error(ErrorConstants.RECORD_NOT_FOUND_ERROR_CODE);
 		ErrorMessage message = new ErrorMessage(ErrorConstants.RECORD_NOT_FOUND_ERROR_CODE, new Date(), ex.getMessage(),
 				request.getDescription(false));
 		return new ResponseEntity<ErrorMessage>(message, HttpStatus.NOT_FOUND);
@@ -87,8 +88,9 @@ public class InventoryExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(InvalidDataException.class)
 	public ResponseEntity<?> handleInvalidDataException(InvalidDataException ex, WebRequest request) {
 
-		String errorMessage2 = MessageFormat.format(ErrorConstants.INVALID_DATA_ERROR_MESSAGE, ex.errMap);
-		ErrorMessage message = new ErrorMessage(ErrorConstants.INVALID_DATA_ERROR_CODE, new Date(), errorMessage2,
+		String errorMessage = MessageFormat.format(ErrorConstants.INVALID_DATA_ERROR_MESSAGE, ex.errMap);
+		log.error(errorMessage);
+		ErrorMessage message = new ErrorMessage(ErrorConstants.INVALID_DATA_ERROR_CODE, new Date(), errorMessage,
 				request.getDescription(false));
 		return new ResponseEntity<ErrorMessage>(message, HttpStatus.BAD_REQUEST);
 	}
@@ -102,7 +104,7 @@ public class InventoryExceptionHandler extends ResponseEntityExceptionHandler {
 
 	private ResponseEntity<Object> formatErrorResponseForHttpMessageNotReadable(final String errorMessage,
 			WebRequest request) {
-
+		log.error(errorMessage);
 		ErrorMessage message = new ErrorMessage(ErrorConstants.NOT_READABLE_ERROR_CODE, new Date(), errorMessage,
 				request.getDescription(false));
 		return new ResponseEntity<Object>(message, HttpStatus.BAD_REQUEST);

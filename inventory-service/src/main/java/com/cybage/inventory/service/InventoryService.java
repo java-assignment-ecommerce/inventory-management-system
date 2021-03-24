@@ -11,9 +11,9 @@ public interface InventoryService {
 
 	InventoryDTO get(Long inventoryId);
 
-	void save(Inventory inventory);
+	InventoryDTO save(Inventory inventory);
 
-	Inventory update(Inventory inventory);
+	InventoryDTO update(Inventory inventory);
 
 	void delete(Long inventoryId);
 

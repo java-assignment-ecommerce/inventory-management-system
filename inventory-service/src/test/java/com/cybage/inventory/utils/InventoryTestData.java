@@ -30,6 +30,13 @@ public class InventoryTestData {
 		return inv2;
 	}
 
+	public static Inventory createInventory_New() {
+		Inventory inv1 = new Inventory();
+		inv1.setInventoryId(1l);
+		inv1.setInventoryName("Inventory 1");
+		inv1.setQuantity(12);
+		return inv1;
+	}
 //	public static Optional<Inventory> createInventoryModel_1() {
 //		Optional<Inventory> inv1 = new Inventory();
 //		inv1.setCreateTime(LocalDateTime.now());

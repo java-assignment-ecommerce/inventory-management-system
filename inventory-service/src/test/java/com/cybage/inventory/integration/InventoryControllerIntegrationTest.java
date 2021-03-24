@@ -3,6 +3,8 @@ package com.cybage.inventory.integration;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -12,12 +14,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -32,8 +34,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.cybage.inventory.InventoryServiceApplication;
 import com.cybage.inventory.dto.InventoryDTO;
+import com.cybage.inventory.exception.ErrorMessage;
 import com.cybage.inventory.models.Inventory;
 import com.cybage.inventory.repository.InventoryRepository;
+
+import lombok.extern.log4j.Log4j2;
 
 @RunWith(SpringRunner.class)
 
@@ -41,11 +46,12 @@ import com.cybage.inventory.repository.InventoryRepository;
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = InventoryServiceApplication.class)
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application.properties")
+//@TestConfiguration
+@Log4j2
 public class InventoryControllerIntegrationTest {
 
 	@Autowired
 	private MockMvc mockMvc;
-
 	@Autowired
 	private InventoryRepository repository;
 
@@ -59,16 +65,33 @@ public class InventoryControllerIntegrationTest {
 	private Integer port;
 
 	@Before
+//	@Sql("data.sql")
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+//		repository.deleteAll();
+	}
+
+	@After
+	public void clear() {
+		repository.deleteAll();
+	}
+
+	private String getLocalhostURL(Long id) {
+
+		return getLocalhostURL() + "/" + id;
+	}
+
+	private String getLocalhostURL() {
+
+		return LOCALHOST_URL + port + INVENTORY;
 	}
 
 	@Test
 	public void testGetAllInventory() throws Exception {
-		ResponseEntity<List> reponse = restTemplate.getForEntity(getLocalhostURL(), List.class);
-		List<InventoryDTO> inventories = ((java.util.List) reponse.getBody());
-		assertEquals(8, inventories.size());
-		assertEquals(HttpStatus.OK, reponse.getStatusCode());
+		ResponseEntity<List> response = restTemplate.getForEntity(getLocalhostURL(), List.class);
+		List<InventoryDTO> inventories = ((java.util.List) response.getBody());
+		assertNull(inventories);
+		assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 	}
 
 	@Test
@@ -77,27 +100,60 @@ public class InventoryControllerIntegrationTest {
 		Inventory inv = createInventoryEntity("Test Books1", 11);
 		restTemplate.postForEntity(getLocalhostURL(), inv, Inventory.class);
 
-		ResponseEntity<List> reponse = restTemplate.getForEntity(getLocalhostURL(), List.class);
-		List<InventoryDTO> inventories = ((java.util.List) reponse.getBody());
-		assertEquals(9, inventories.size());
+		inv = createInventoryEntity("Test Books2", 22);
+		restTemplate.postForEntity(getLocalhostURL(), inv, Inventory.class);
 
-		assertEquals(HttpStatus.OK, reponse.getStatusCode());
+		ResponseEntity<List> response = restTemplate.getForEntity(getLocalhostURL(), List.class);
+		List<InventoryDTO> inventories = ((java.util.List) response.getBody());
+		assertEquals(2, inventories.size());
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
 
 	}
 
 	@Test
-	public void testAddInventory() throws Exception {
+	public void testGetInventoryById() throws Exception {
 
 		Inventory inv = createInventoryEntity("Test Books1", 11);
-		ResponseEntity<?> response = restTemplate.postForEntity(getLocalhostURL(), inv, Inventory.class);
-		List<InventoryDTO> inventories = ((java.util.List) response.getBody());
-		System.out.println(response);
-		assertEquals(HttpStatus.CREATED, response.getStatusCode());
+		restTemplate.postForEntity(getLocalhostURL(), inv, Inventory.class);
+
+		inv = createInventoryEntity("Test Books2", 22);
+		ResponseEntity<InventoryDTO> invDtoResponse = restTemplate.postForEntity(getLocalhostURL(), inv,
+				InventoryDTO.class);
+
+		ResponseEntity<InventoryDTO> response = restTemplate
+				.getForEntity(getLocalhostURL(invDtoResponse.getBody().getInventoryId()), InventoryDTO.class);
+		log.debug("xxxxxxxxxxxxxxxxxxxxx" + response);
+//		assertEquals(2, inventories.size());
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(invDtoResponse.getBody(), response.getBody());
+
 	}
 
-	private String getLocalhostURL() {
+//	@Test
+	public void testGetInventoryById_NotFound() throws Exception {
+		log.debug(port);
+		Long id = 100l;
+		ResponseEntity<ErrorMessage> response = restTemplate.getForEntity(getLocalhostURL(id), ErrorMessage.class);
+		log.debug("xxxxxxxxxxxxxxxxxxxxx" + response);
+//		assertEquals(2, inventories.size());
 
-		return LOCALHOST_URL + port + INVENTORY;
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+		assertEquals("Record with Id " + id + " not found", response.getBody().getMessage());
+		assertEquals("IMS-100", response.getBody().getErrorCode());
+	}
+
+	@Test
+	public void testAddInventory() throws Exception {
+		Inventory inv = createInventoryEntity("Test Books1", 11);
+		ResponseEntity<InventoryDTO> response = restTemplate.postForEntity(getLocalhostURL(), inv, InventoryDTO.class);
+		InventoryDTO inventories = response.getBody();
+		log.debug("xxxxxxxxxxxxxxxxxxxxx" + response);
+		assertEquals(HttpStatus.CREATED, response.getStatusCode());
+		assertNotNull(inventories);
+		assertEquals(inv.getInventoryName(), inventories.getInventoryName());
+		assertEquals(inv.getQuantity(), inventories.getQuantity());
 	}
 
 	@Test
@@ -108,10 +164,10 @@ public class InventoryControllerIntegrationTest {
 
 		mockMvc.perform(get(INVENTORY).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)).andDo(print())
-				.andExpect(jsonPath("$", hasSize(10))).andExpect(jsonPath("$[8].inventoryName", is("Test Books1")))
-				.andExpect(jsonPath("$[8].quantity", is(11)))
-				.andExpect(jsonPath("$[9].inventoryName", is("Test Books2")))
-				.andExpect(jsonPath("$[9].quantity", is(22))).andExpect(status().isOk());
+				.andExpect(jsonPath("$", hasSize(2))).andExpect(jsonPath("$[0].inventoryName", is("Test Books1")))
+				.andExpect(jsonPath("$[0].quantity", is(11)))
+				.andExpect(jsonPath("$[1].inventoryName", is("Test Books2")))
+				.andExpect(jsonPath("$[1].quantity", is(22))).andExpect(status().isOk());
 	}
 
 	private void createInventory(String inventoryName, Integer inventoryQuantity) {

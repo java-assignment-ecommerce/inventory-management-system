@@ -9,6 +9,7 @@ import javax.validation.constraints.Min;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -38,7 +39,7 @@ public class InventoryController {
 	@Autowired
 	InventoryService inventoryService;
 
-	@GetMapping
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<InventoryDTO>> getAllInventory() {
 		log.info("Request to fetch all inventories");
 		List<InventoryDTO> inventory = inventoryService.listAll();
@@ -52,6 +53,14 @@ public class InventoryController {
 
 	@GetMapping("/{inventoryId}")
 	public ResponseEntity<InventoryDTO> getInventoryById(@PathVariable Long inventoryId) {
+		log.info("Request to gefetch inventory with id : {}", inventoryId);
+		return new ResponseEntity<>(inventoryService.get(inventoryId), HttpStatus.OK);
+	}
+
+	@GetMapping(value = "inv", produces = MediaType.APPLICATION_JSON_VALUE)
+//	@RequestMapping(method = RequestMethod.GET, value = "inv", produces = MimeTypeUtils.APPLICATION_JSON)
+	public ResponseEntity<InventoryDTO> getInventoryById2() {
+		Long inventoryId = 2l;
 		log.info("Request to gefetch inventory with id : {}", inventoryId);
 		return new ResponseEntity<>(inventoryService.get(inventoryId), HttpStatus.OK);
 	}

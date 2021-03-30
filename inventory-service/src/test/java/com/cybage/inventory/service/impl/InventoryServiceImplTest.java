@@ -3,7 +3,6 @@ package com.cybage.inventory.service.impl;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -31,32 +29,21 @@ import com.cybage.inventory.utils.InventoryTestData;
 
 @RunWith(SpringRunner.class)
 //@RunWith(MockitoJUnitRunner.class)
-@SpringBootTest
+//@SpringBootTest
 public class InventoryServiceImplTest {
 
 	@Mock
 	private InventoryRepository inventoryRepository;
-	// ---------------
-//	@Mock
-//	@Autowired
-//	@MockBean
-//	private ModelMapper modelMapper = new ModelMapper();
-//private ModelMapper modelMapper = modelmapp
-	// ---------------
-//	@Autowired
-//	@MockBean
-//	@Mock
-	private ModelMapper modelMapper;
-	// ---------------
+
 	@InjectMocks
-//	@Autowired
 	private InventoryServiceImpl inventoryService;
 
+	@Mock
+	InventoryDTO inventoryDTO;
 //	@Autowired
 
 	@Before
 	public void setUp() {
-		modelMapper = spy(new ModelMapper());
 //		modelMapper.getConfiguration().setFieldMatchingEnabled(true) ;
 //		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
 //		modelMapper.addMappings(new Inventory());
@@ -114,7 +101,9 @@ public class InventoryServiceImplTest {
 
 	@Test
 	public void testCreateInventory() {
+
 		Inventory inv = InventoryTestData.createInventory_1();
+		when(inventoryRepository.save(inv)).thenReturn(inv);
 		inventoryService.save(inv);
 		verify(inventoryRepository, times(1)).save(inv);
 	}

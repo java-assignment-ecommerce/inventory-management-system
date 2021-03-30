@@ -17,8 +17,8 @@ import com.cybage.inventory.models.Inventory;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 //@ActiveProfiles("test")
-
 public class InventoryRepositoryTest {
+
 	@Autowired
 	private TestEntityManager entityManager;
 

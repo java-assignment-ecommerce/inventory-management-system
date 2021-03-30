@@ -1,5 +1,6 @@
-package com.cybage.inventory.exception;
+package com.cybage.booking.exception;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Date;
@@ -21,7 +22,6 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import lombok.extern.log4j.Log4j2;
 
-//@Order(Ordered.LOWEST_PRECEDENCE)
 
 @Log4j2
 @ControllerAdvice
@@ -77,26 +77,33 @@ public class InventoryExceptionHandler extends ResponseEntityExceptionHandler {
 		}
 	}
 
-	@ExceptionHandler(RecordNotFoundException.class)
-	public ResponseEntity<?> resourceNotFoundException(RecordNotFoundException ex, WebRequest request) {
-		log.error(ErrorConstants.RECORD_NOT_FOUND_ERROR_CODE);
-		ErrorMessage message = new ErrorMessage(ErrorConstants.RECORD_NOT_FOUND_ERROR_CODE, new Date(), ex.getMessage(),
-				request.getDescription(false));
-		return new ResponseEntity<ErrorMessage>(message, HttpStatus.NOT_FOUND);
-	}
-
-	@ExceptionHandler(InvalidDataException.class)
-	public ResponseEntity<?> handleInvalidDataException(InvalidDataException ex, WebRequest request) {
-
-		String errorMessage = MessageFormat.format(ErrorConstants.INVALID_DATA_ERROR_MESSAGE, ex.errMap);
-		log.error(errorMessage);
-		ErrorMessage message = new ErrorMessage(ErrorConstants.INVALID_DATA_ERROR_CODE, new Date(), errorMessage,
-				request.getDescription(false));
-		return new ResponseEntity<ErrorMessage>(message, HttpStatus.BAD_REQUEST);
-	}
+//	@ExceptionHandler(RecordNotFoundException.class)
+//	public ResponseEntity<?> resourceNotFoundException(RecordNotFoundException ex, WebRequest request) {
+//		log.error(ErrorConstants.RECORD_NOT_FOUND_ERROR_CODE);
+//		ErrorMessage message = new ErrorMessage(ErrorConstants.RECORD_NOT_FOUND_ERROR_CODE, new Date(), ex.getMessage(),
+//				request.getDescription(false));
+//		return new ResponseEntity<ErrorMessage>(message, HttpStatus.NOT_FOUND);
+//	}
+//
+//	@ExceptionHandler(InvalidDataException.class)
+//	public ResponseEntity<?> handleInvalidDataException(InvalidDataException ex, WebRequest request) {
+//
+//		String errorMessage = MessageFormat.format(ErrorConstants.INVALID_DATA_ERROR_MESSAGE, ex.errMap);
+//		log.error(errorMessage);
+//		ErrorMessage message = new ErrorMessage(ErrorConstants.INVALID_DATA_ERROR_CODE, new Date(), errorMessage,
+//				request.getDescription(false));
+//		return new ResponseEntity<ErrorMessage>(message, HttpStatus.BAD_REQUEST);
+//	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> globalExceptionHandler(Exception ex, WebRequest request) {
+		ErrorMessage message = new ErrorMessage(ErrorConstants.GENERIC_ERROR_CODE, new Date(), ex.getMessage(),
+				request.getDescription(false));
+		return new ResponseEntity<ErrorMessage>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@ExceptionHandler(EOFException.class)
+	public ResponseEntity<?> handleEOFException(Exception ex, WebRequest request) {
 		ErrorMessage message = new ErrorMessage(ErrorConstants.GENERIC_ERROR_CODE, new Date(), ex.getMessage(),
 				request.getDescription(false));
 		return new ResponseEntity<ErrorMessage>(message, HttpStatus.INTERNAL_SERVER_ERROR);

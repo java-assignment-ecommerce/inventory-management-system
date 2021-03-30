@@ -5,19 +5,23 @@ import java.time.LocalDateTime;
 
 import com.cybage.inventory.models.Inventory;
 
-/*
- * Inventory 
- */
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class InventoryDTO implements Serializable {
 	private Long inventoryId;
 	private String inventoryName;
 	private Integer quantity;
 	private LocalDateTime createTime;
 	private LocalDateTime updateTime;
-
-	public InventoryDTO() {
-		super();
-	}
 
 	public InventoryDTO(Inventory inv) {
 		super();
@@ -36,52 +40,6 @@ public class InventoryDTO implements Serializable {
 		this.quantity = quantity;
 		this.createTime = createTime;
 		this.updateTime = updateTime;
-	}
-
-	public Long getInventoryId() {
-		return inventoryId;
-	}
-
-	public void setInventoryId(Long inventoryId) {
-		this.inventoryId = inventoryId;
-	}
-
-	public String getInventoryName() {
-		return inventoryName;
-	}
-
-	public void setInventoryName(String inventoryName) {
-		this.inventoryName = inventoryName;
-	}
-
-	public Integer getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
-	}
-
-	public LocalDateTime getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(LocalDateTime createTime) {
-		this.createTime = createTime;
-	}
-
-	public LocalDateTime getUpdateTime() {
-		return updateTime;
-	}
-
-	public void setUpdateTime(LocalDateTime updateTime) {
-		this.updateTime = updateTime;
-	}
-
-	@Override
-	public String toString() {
-		return "Inventory [inventoryId=" + inventoryId + ", inventoryName=" + inventoryName + ", quantity=" + quantity
-				+ ", createTime=" + createTime + ", updateTime=" + updateTime + "]";
 	}
 
 }

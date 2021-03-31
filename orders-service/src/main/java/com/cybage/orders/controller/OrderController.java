@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,14 +34,14 @@ public class OrderController {
 
 	@Autowired
 	ModelMapper modelMapper;
-	
+
 	/**
 	 * This will return a list of ORDERS
 	 */
 	@GetMapping
 	@ResponseBody
 	public ResponseEntity<List<OrderDTO>> getAllOrders() {
-		
+System.out.println("in controller");
 		return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrders().stream()
 				.map(o -> modelMapper.map(o, OrderDTO.class)).collect(Collectors.toList()));
 	}
@@ -52,7 +51,7 @@ public class OrderController {
 	 */
 	@GetMapping("/{orderId}")
 	public ResponseEntity<OrderDTO> getOrderByid(@PathVariable int orderId) {
-	
+
 		return ResponseEntity.status(HttpStatus.OK).body(orderService.getOrderById(orderId));
 	}
 
@@ -61,9 +60,9 @@ public class OrderController {
 	 */
 	@PostMapping
 	public ResponseEntity<OrderDTO> addOrder(@RequestBody OrderDTO orderDTO) {
-		OrderDTO orderDto1=new OrderDTO();
+		OrderDTO orderDto1 = new OrderDTO();
 		BeanUtils.copyProperties(orderService.addOrder(orderDTO), orderDto1);
-		log.info("In Order controller,entry received for "+orderDto1.getOrderName());
+		log.info("In Order controller,entry received for " + orderDto1.getOrderName());
 		return ResponseEntity.status(HttpStatus.CREATED).body(orderDto1);
 
 	}
@@ -72,12 +71,11 @@ public class OrderController {
 	 * This will update single record using id
 	 */
 	@PutMapping("/{orderId}")
-	public ResponseEntity<OrderDTO> updateOrder(@PathVariable int orderId,
-			@RequestBody OrderDTO orderDTO) {
-		
-		OrderDTO orderDto1=new OrderDTO();
-		BeanUtils.copyProperties(orderService.updateOrder(orderId,orderDTO), orderDto1);
-		log.info("In Order controller,update request for ID"+orderId);
+	public ResponseEntity<OrderDTO> updateOrder(@PathVariable int orderId, @RequestBody OrderDTO orderDTO) {
+
+		OrderDTO orderDto1 = new OrderDTO();
+		BeanUtils.copyProperties(orderService.updateOrder(orderId, orderDTO), orderDto1);
+		log.info("In Order controller,update request for ID" + orderId);
 		return ResponseEntity.status(HttpStatus.OK).body(orderDto1);
 
 	}
@@ -87,8 +85,11 @@ public class OrderController {
 	 * then stop/revert this operation
 	 */
 	@DeleteMapping("/{orderId}")
-	public ResponseEntity<?> deleteInventoryById(@PathVariable int orderId) {
-		return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK);
+	public ResponseEntity<?> deleteOrderById(@PathVariable int orderId) {
+		//return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK);		
+		log.info("Request to delete Order with id : {}", orderId);
+		orderService.deleteOrderById(orderId);
+		return new ResponseEntity<>(HttpStatus.OK);
 
 	}
 

@@ -107,4 +107,24 @@ public class InventoryServiceImplTest {
 		inventoryService.save(inv);
 		verify(inventoryRepository, times(1)).save(inv);
 	}
+	
+	@Test
+	public void testUpdateInventory() {
+		Inventory inv = InventoryTestData.createInventory_1();
+		when(inventoryRepository.save(inv)).thenReturn(inv);
+		InventoryDTO invDTO = inventoryService.update(inv);
+		assertEquals("Inventory 1",invDTO.getInventoryName());
+		verify(inventoryRepository, times(1)).save(inv);
+	}
+	
+	@Test
+	public void testDeleteInventory() {
+		Inventory inv = InventoryTestData.createInventory_1();
+		
+		when(inventoryRepository.findById(1L)).thenReturn(Mockito.any());
+		Mockito.doNothing().when(inventoryRepository).delete(inv);
+		inventoryService.delete(1L);
+		verify(inventoryRepository, times(1)).delete(inv);
+	}
+	
 }

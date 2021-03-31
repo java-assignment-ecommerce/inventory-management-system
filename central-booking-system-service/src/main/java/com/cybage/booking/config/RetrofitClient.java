@@ -38,5 +38,20 @@ public class RetrofitClient {
 
 		return retrofit;
 	}
+	public Retrofit createOrderClient() {
+		log.info(props.getOrderUrl());
+		Gson gson = new GsonBuilder().setLenient().setDateFormat("yyyy-MM-dd").create();
+		HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+		interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+		OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(interceptor)
+				.connectTimeout(Integer.parseInt(props.getConnectionTimeout()), TimeUnit.MILLISECONDS)
+				.readTimeout(Integer.parseInt(props.getReadTimeout()), TimeUnit.MILLISECONDS).build();
+		
+		Retrofit orderRetrofit = new Retrofit.Builder().baseUrl(props.getOrderUrl())
+				.addConverterFactory(GsonConverterFactory.create(gson)).client(httpClient).build();
+
+		return orderRetrofit;
+	}
 
 }

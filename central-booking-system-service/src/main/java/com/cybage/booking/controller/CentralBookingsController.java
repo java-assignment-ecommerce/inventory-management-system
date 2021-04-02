@@ -20,6 +20,7 @@ import com.cybage.booking.config.RetrofitClient;
 import com.cybage.booking.dto.InventoryDTO;
 import com.cybage.booking.exception.ErrorMessage;
 import com.cybage.booking.service.InventoryInterface;
+import com.cybage.booking.service.InventoryService;
 
 import lombok.extern.log4j.Log4j2;
 import retrofit2.Call;
@@ -32,12 +33,7 @@ import retrofit2.Retrofit;
 public class CentralBookingsController {
 
 	@Autowired
-	private RetrofitClient retrofit;
-	private final static String ALL_ORDERS = "/view";
-	private final static String ADD = "/add";
-	private final static String UPDATE = "/update";
-	private final static String DELETE = "/remove";
-	private final static String ALL_INVENTORY = "/view";
+	InventoryService inventoryService;
 
 	@GetMapping
 	public String test() {
@@ -47,126 +43,28 @@ public class CentralBookingsController {
 	@GetMapping("inventory")
 	public ResponseEntity<?> getAllInventory() throws IOException {
 
-		Retrofit r = retrofit.createInventoryClient();
-
-		InventoryInterface inv = r.create(InventoryInterface.class);
-		Call<List<InventoryDTO>> callInv = inv.getInventories();
-
-		Response<List<InventoryDTO>> response = callInv.execute();
-
-		if (response.isSuccessful()) {
-			List<InventoryDTO> dtos = response.body();
-
-			log.info(dtos);
-			log.info(response.message());
-			return new ResponseEntity<List<InventoryDTO>>(dtos, HttpStatus.OK);
-		} else {
-			log.debug(response.errorBody());
-			log.debug(response.message());
-			ObjectMapper mapper = new ObjectMapper();
-			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
-
-			return new ResponseEntity<Object>(msg, HttpStatus.BAD_REQUEST);
-		}
+		return inventoryService.getAllInventory();
 
 	}
 
 	@GetMapping("inventory/{inventoryId}")
 	public ResponseEntity<?> getInventory(@PathVariable Long inventoryId) throws IOException {
-		Retrofit r = retrofit.createInventoryClient();
-		InventoryInterface inv = r.create(InventoryInterface.class);
-		Call<InventoryDTO> callInv = inv.getInventory(inventoryId);
-
-		Response<InventoryDTO> response = callInv.execute();
-		if (response.isSuccessful()) {
-			InventoryDTO dtos = response.body();
-
-			log.info(dtos);
-			log.info(response.message());
-			log.info("****************************************");
-			return new ResponseEntity<InventoryDTO>(dtos, HttpStatus.OK);
-		} else {
-
-			log.debug(response.errorBody());
-			log.debug(response.message());
-			ObjectMapper mapper = new ObjectMapper();
-			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
-			HttpStatus.valueOf(response.code());
-			return new ResponseEntity<Object>(msg, HttpStatus.valueOf(response.code()));
-		}
+		return inventoryService.getInventory(inventoryId);
 	}
 
 	@PostMapping("inventory")
 	public ResponseEntity<?> addInventory(@RequestBody InventoryDTO inventory) throws IOException {
-		Retrofit r = retrofit.createInventoryClient();
-		InventoryInterface inv = r.create(InventoryInterface.class);
-		Call<InventoryDTO> callInv = inv.addInventory(inventory);
-
-		Response<InventoryDTO> response = callInv.execute();
-		if (response.isSuccessful()) {
-			InventoryDTO dtos = response.body();
-
-			log.info(dtos);
-			log.info(response.message());
-			log.info("****************************************");
-			return new ResponseEntity<InventoryDTO>(dtos, HttpStatus.OK);
-		} else {
-
-			log.debug(response.errorBody());
-			log.debug(response.message());
-			ObjectMapper mapper = new ObjectMapper();
-			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
-			HttpStatus.valueOf(response.code());
-			return new ResponseEntity<Object>(msg, HttpStatus.valueOf(response.code()));
-		}
+		return inventoryService.addInventory(inventory);
 	}
 
 	@PutMapping("inventory")
 	public ResponseEntity<?> updateInventory(@RequestBody InventoryDTO inventory) throws IOException {
-		Retrofit r = retrofit.createInventoryClient();
-		InventoryInterface inv = r.create(InventoryInterface.class);
-		Call<InventoryDTO> callInv = inv.updateInventory(inventory);
-
-		Response<InventoryDTO> response = callInv.execute();
-		if (response.isSuccessful()) {
-			InventoryDTO dtos = response.body();
-
-			log.info(dtos);
-			log.info(response.message());
-			log.info("****************************************");
-			return new ResponseEntity<InventoryDTO>(dtos, HttpStatus.OK);
-		} else {
-
-			log.debug(response.errorBody());
-			log.debug(response.message());
-			ObjectMapper mapper = new ObjectMapper();
-			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
-			HttpStatus.valueOf(response.code());
-			return new ResponseEntity<Object>(msg, HttpStatus.valueOf(response.code()));
-		}
+		return inventoryService.updateInventory(inventory);
 	}
 
 	@DeleteMapping("inventory/{inventoryId}")
 	public ResponseEntity<?> deleteInventory(@PathVariable Long inventoryId) throws IOException {
-		Retrofit r = retrofit.createInventoryClient();
-		InventoryInterface inv = r.create(InventoryInterface.class);
-		Call<Void> callInv = inv.deleteInventory(inventoryId);
-
-		Response<Void> response = callInv.execute();
-		if (response.isSuccessful()) {
-
-			log.info(response.message());
-			log.info("****************************************");
-			return new ResponseEntity<Void>(HttpStatus.OK);
-		} else {
-
-			log.debug(response.errorBody());
-			log.debug(response.message());
-			ObjectMapper mapper = new ObjectMapper();
-			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
-			HttpStatus.valueOf(response.code());
-			return new ResponseEntity<Object>(msg, HttpStatus.valueOf(response.code()));
-		}
+		return inventoryService.deleteInventory(inventoryId);
 	}
 
 }

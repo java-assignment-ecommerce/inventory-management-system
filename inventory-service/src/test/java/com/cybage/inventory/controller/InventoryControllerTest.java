@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.stubbing.answers.DoesNothing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -40,6 +41,7 @@ import com.cybage.inventory.dto.InventoryDTO;
 import com.cybage.inventory.exception.InventoryExceptionHandler;
 import com.cybage.inventory.exception.RecordNotFoundException;
 import com.cybage.inventory.models.Inventory;
+import com.cybage.inventory.service.InventoryService;
 import com.cybage.inventory.service.impl.InventoryServiceImpl;
 import com.cybage.inventory.utils.InventoryTestData;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -153,5 +155,34 @@ public class InventoryControllerTest {
 		result.andExpect(jsonPath("$", notNullValue())).andDo(print());
 
 		log.debug("..............");
+	}
+	
+	@Test
+	public void testGetInventoryById() throws Exception{
+		Long id = 1L;
+		InventoryDTO invDTO = InventoryTestData.createInventoryDTO_1();
+		Mockito.when(inventoryService.get(id)).thenReturn(invDTO);
+		
+		mockMvc.perform(get(getLocalhostURL(id)).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+	}
+	
+	@Test
+	public void testGetInventoryByIdNoData() throws Exception{
+		Long id = 1L;
+		InventoryDTO invDTO = new InventoryDTO();
+		when(inventoryService.get(id)).thenReturn(invDTO);
+		
+		mockMvc.perform(get(getLocalhostURL(id)).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+	}
+	
+	@Test
+	public void testDeleteInventoryById() throws Exception {
+		Long id = 1L;
+		Mockito.doNothing().when(inventoryService).delete(id);
+		 this.mockMvc.perform(MockMvcRequestBuilders
+		            .delete(getLocalhostURL(),"11")
+		            .contentType(MediaType.APPLICATION_JSON))
+		            .andExpect(status().isOk());
+	
 	}
 }

@@ -109,24 +109,28 @@ public class InventoryServiceImplTest {
 
 		verify(inventoryRepository, times(1)).save(inv);
 	}
-	
+
 	@Test
 	public void testUpdateInventory() {
+		InventoryDTO invDto = InventoryTestData.createInventoryDTO_1();
 		Inventory inv = InventoryTestData.createInventory_1();
 		when(inventoryRepository.save(inv)).thenReturn(inv);
-		InventoryDTO invDTO = inventoryService.update(inv);
-		assertEquals("Inventory 1",invDTO.getInventoryName());
+
+		// need to mock this as well
+		when(inventoryRepository.findById(invDto.getInventoryId()))
+				.thenReturn(Optional.of(InventoryTestData.createInventory_1()));
+		InventoryDTO invDTO = inventoryService.update(invDto);
+		assertEquals("Inventory 1", invDTO.getInventoryName());
 		verify(inventoryRepository, times(1)).save(inv);
 	}
-	
+
 	@Test
 	public void testDeleteInventory() {
-		Inventory inv = InventoryTestData.createInventory_1();
-		
-		when(inventoryRepository.findById(1L)).thenReturn(Mockito.any());
-		Mockito.doNothing().when(inventoryRepository).delete(inv);
+		Optional<Inventory> i = Optional.of(InventoryTestData.createInventory_1());
+		when(inventoryRepository.findById(Mockito.anyLong())).thenReturn(i);
+		Mockito.doNothing().when(inventoryRepository).delete(Mockito.any());
 		inventoryService.delete(1L);
-		verify(inventoryRepository, times(1)).delete(inv);
+		verify(inventoryRepository, times(1)).delete(i.get());
 	}
-	
+
 }

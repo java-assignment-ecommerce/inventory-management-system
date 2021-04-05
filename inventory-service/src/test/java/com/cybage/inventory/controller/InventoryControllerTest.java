@@ -179,8 +179,9 @@ public class InventoryControllerTest {
 	public void testDeleteInventoryById() throws Exception {
 		Long id = 1L;
 		Mockito.doNothing().when(inventoryService).delete(id);
+		//the id is the path param, hence should be part of the url
 		 this.mockMvc.perform(MockMvcRequestBuilders
-		            .delete(getLocalhostURL(),"11")
+		            .delete(getLocalhostURL(11l))
 		            .contentType(MediaType.APPLICATION_JSON))
 		            .andExpect(status().isOk());
 	

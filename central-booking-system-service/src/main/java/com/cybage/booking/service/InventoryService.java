@@ -3,7 +3,6 @@ package com.cybage.booking.service;
 import java.io.IOException;
 import java.util.List;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.cybage.booking.dto.InventoryDTO;
 import com.cybage.booking.exception.ErrorMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.log4j.Log4j2;
 import retrofit2.Call;
@@ -26,6 +26,8 @@ public class InventoryService {
 	@Autowired
 	@Qualifier("inventoryClient")
 	private InventoryInterface inventoryClient;
+	
+	private  ObjectMapper  objectMapper;
 
 	public ResponseEntity<?> getAllInventory() throws IOException {
 		Call<List<InventoryDTO>> callInv = inventoryClient.getInventories();
@@ -41,8 +43,8 @@ public class InventoryService {
 		} else {
 			log.debug(response.errorBody());
 			log.debug(response.message());
-			ObjectMapper mapper = new ObjectMapper();
-			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
+			 
+			ErrorMessage msg = objectMapper.readValue(response.errorBody().string(), ErrorMessage.class);
 
 			return new ResponseEntity<Object>(msg, HttpStatus.BAD_REQUEST);
 		}
@@ -63,8 +65,8 @@ public class InventoryService {
 
 			log.debug(response.errorBody());
 			log.debug(response.message());
-			ObjectMapper mapper = new ObjectMapper();
-			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
+			 
+			ErrorMessage msg = objectMapper.readValue(response.errorBody().string(), ErrorMessage.class);
 			HttpStatus.valueOf(response.code());
 			return new ResponseEntity<Object>(msg, HttpStatus.valueOf(response.code()));
 		}
@@ -85,8 +87,8 @@ public class InventoryService {
 
 			log.debug(response.errorBody());
 			log.debug(response.message());
-			ObjectMapper mapper = new ObjectMapper();
-			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
+			 
+			ErrorMessage msg = objectMapper.readValue(response.errorBody().string(), ErrorMessage.class);
 			HttpStatus.valueOf(response.code());
 			return new ResponseEntity<Object>(msg, HttpStatus.valueOf(response.code()));
 		}
@@ -107,8 +109,8 @@ public class InventoryService {
 
 			log.debug(response.errorBody());
 			log.debug(response.message());
-			ObjectMapper mapper = new ObjectMapper();
-			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
+		 
+			ErrorMessage msg = objectMapper.readValue(response.errorBody().string(), ErrorMessage.class);
 			HttpStatus.valueOf(response.code());
 			return new ResponseEntity<Object>(msg, HttpStatus.valueOf(response.code()));
 		}
@@ -127,8 +129,8 @@ public class InventoryService {
 
 			log.debug(response.errorBody());
 			log.debug(response.message());
-			ObjectMapper mapper = new ObjectMapper();
-			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
+		 
+			ErrorMessage msg = objectMapper.readValue(response.errorBody().string(), ErrorMessage.class);
 			HttpStatus.valueOf(response.code());
 			return new ResponseEntity<Object>(msg, HttpStatus.valueOf(response.code()));
 		}

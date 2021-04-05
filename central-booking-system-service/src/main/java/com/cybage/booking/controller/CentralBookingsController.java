@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cybage.booking.config.RetrofitClient;
 import com.cybage.booking.dto.InventoryDTO;
+import com.cybage.booking.dto.OrderDTO;
 import com.cybage.booking.exception.ErrorMessage;
 import com.cybage.booking.service.InventoryInterface;
 import com.cybage.booking.service.InventoryService;
+import com.cybage.booking.service.OrderInterface;
 
 import lombok.extern.log4j.Log4j2;
 import retrofit2.Call;
@@ -34,6 +36,7 @@ public class CentralBookingsController {
 
 	@Autowired
 	InventoryService inventoryService;
+	private RetrofitClient retrofit;
 
 	@GetMapping
 	public String test() {
@@ -66,5 +69,80 @@ public class CentralBookingsController {
 	public ResponseEntity<?> deleteInventory(@PathVariable Long inventoryId) throws IOException {
 		return inventoryService.deleteInventory(inventoryId);
 	}
+	
+	/********************/
+	@GetMapping("orders")
+	public ResponseEntity<?> getAllOrders() throws IOException {
 
+		Retrofit r = retrofit.createOrderClient();
+
+		OrderInterface ord = r.create(OrderInterface.class);
+		Call<List<OrderDTO>> callOrd = ord.getOrders();
+		Response<List<OrderDTO>> response = callOrd.execute();
+
+		if (response.isSuccessful()) {
+			List<OrderDTO> dtos = response.body();
+
+			log.info(dtos);
+			log.info(response.message());
+			return new ResponseEntity<List<OrderDTO>>(dtos, HttpStatus.OK);
+		} else {
+			log.debug(response.errorBody());
+			log.debug(response.message());
+			ObjectMapper mapper = new ObjectMapper();
+			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
+
+			return new ResponseEntity<Object>(msg, HttpStatus.BAD_REQUEST);
+		}
+
+	}
+	
+//	@DeleteMapping("orders/{orderId}")
+//	public ResponseEntity<?> deleteOrder(@PathVariable Integer orderId) throws IOException {
+//		Retrofit r = retrofit.createInventoryClient();
+//		OrderInterface ord = r.create(OrderInterface.class);
+//		Call<Void> callOrd = ord.deleteOrder(orderId);
+//
+//		Response<Void> response = callOrd.execute();
+//		if (response.isSuccessful()) {
+//
+//			log.info(response.message());
+//			log.info("****************************************");
+//			return new ResponseEntity<Void>(HttpStatus.OK);
+//		} else {
+//
+//			log.debug(response.errorBody());
+//			log.debug(response.message());
+//			ObjectMapper mapper = new ObjectMapper();
+//			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
+//			HttpStatus.valueOf(response.code());
+//			return new ResponseEntity<Object>(msg, HttpStatus.valueOf(response.code()));
+//		}
+//	}
+//	
+//	@PostMapping("orders")
+//	public ResponseEntity<?> addOrder(@RequestBody OrderDTO order) throws IOException {
+//		Retrofit r = retrofit.createInventoryClient();
+//		OrderInterface ord = r.create(OrderInterface.class);
+//		Call<OrderDTO> callInv = ord.addOrder(order);
+//
+//		Response<OrderDTO> response = callInv.execute();
+//		if (response.isSuccessful()) {
+//			OrderDTO dtos = response.body();
+//
+//			log.info(dtos);
+//			log.info(response.message());
+//			log.info("****************************************");
+//			return new ResponseEntity<OrderDTO>(dtos, HttpStatus.OK);
+//		} else {
+//
+//			log.debug(response.errorBody());
+//			log.debug(response.message());
+//			ObjectMapper mapper = new ObjectMapper();
+//			ErrorMessage msg = mapper.readValue(response.errorBody().string(), ErrorMessage.class);
+//			HttpStatus.valueOf(response.code());
+//			return new ResponseEntity<Object>(msg, HttpStatus.valueOf(response.code()));
+//		}
+//	}
+	
 }

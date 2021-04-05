@@ -1,5 +1,6 @@
 package com.cybage.booking.config;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,12 @@ public class RetrofitClient {
 	@Autowired
 	private PropertiesConfig props;
 
+	@Autowired
+	private Gson gson;
+
 	@Bean(name = "inventoryClient")
 	public InventoryInterface createInventoryClient() {
 		log.info(props.getInventoryUrl());
-		Gson gson = new GsonBuilder().setLenient().setDateFormat("yyyy-MM-dd").create();
 		HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
 		interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -42,6 +45,25 @@ public class RetrofitClient {
 		InventoryInterface inv = retrofit.create(InventoryInterface.class);
 
 		return inv;
+	}
+
+	public Retrofit createOrderClient() {
+		log.info(props.getOrderUrl());
+		Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateDeserializer()).setLenient()
+				.setDateFormat("yyyy-MM-dd").create();
+//		GsonBuilder gsonBuilder = new GsonBuilder();
+//		gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
+		HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+		interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+		OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(interceptor)
+				.connectTimeout(Integer.parseInt(props.getConnectionTimeout()), TimeUnit.MILLISECONDS)
+				.readTimeout(Integer.parseInt(props.getReadTimeout()), TimeUnit.MILLISECONDS).build();
+
+		Retrofit orderRetrofit = new Retrofit.Builder().baseUrl(props.getOrderUrl())
+				.addConverterFactory(GsonConverterFactory.create(gson)).client(httpClient).build();
+
+		return orderRetrofit;
 	}
 
 }

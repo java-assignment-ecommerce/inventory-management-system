@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.cybage.inventory.controller.InventoryController;
 
 @SpringBootTest
-//@RunWith(MockitoJUnitRunner.class)
 public class InventoryServiceApplicationTests {
 
 	@Autowired

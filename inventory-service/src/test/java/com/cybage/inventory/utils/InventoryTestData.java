@@ -84,4 +84,19 @@ public class InventoryTestData {
 		return stores;
 	}
 
+	public static Inventory createInventoryEntity(String inventoryName, Integer inventoryQuantity) {
+		Inventory s = new Inventory();
+		s.setInventoryName(inventoryName);
+		s.setQuantity(inventoryQuantity);
+		s.setCreateTime(LocalDateTime.now());
+		return s;
+	}
+	
+	public static InventoryDTO createInventoryDTO(String inventoryName, Integer inventoryQuantity) {
+		InventoryDTO s = new InventoryDTO();
+		s.setInventoryName(inventoryName);
+		s.setQuantity(inventoryQuantity);
+		s.setCreateTime(LocalDateTime.now());
+		return s;
+	}
 }

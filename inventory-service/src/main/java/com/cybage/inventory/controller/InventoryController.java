@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cybage.inventory.dto.InventoryDTO;
 import com.cybage.inventory.exception.InvalidDataException;
+import com.cybage.inventory.exception.RecordNotFoundException;
 import com.cybage.inventory.models.Inventory;
 import com.cybage.inventory.service.InventoryService;
 
@@ -33,7 +34,6 @@ import lombok.extern.log4j.Log4j2;
 @RestController
 @RequestMapping("inventory")
 //@Validated
-
 public class InventoryController {
 
 	@Autowired
@@ -52,21 +52,14 @@ public class InventoryController {
 	}
 
 	@GetMapping("/{inventoryId}")
-	public ResponseEntity<InventoryDTO> getInventoryById(@PathVariable Long inventoryId) {
-		log.info("Request to gefetch inventory with id : {}", inventoryId);
-		return new ResponseEntity<>(inventoryService.get(inventoryId), HttpStatus.OK);
-	}
-
-	@GetMapping(value = "inv", produces = MediaType.APPLICATION_JSON_VALUE)
-//	@RequestMapping(method = RequestMethod.GET, value = "inv", produces = MimeTypeUtils.APPLICATION_JSON)
-	public ResponseEntity<InventoryDTO> getInventoryById2() {
-		Long inventoryId = 2l;
+	public ResponseEntity<InventoryDTO> getInventoryById(@PathVariable Long inventoryId)
+			throws RecordNotFoundException {
 		log.info("Request to gefetch inventory with id : {}", inventoryId);
 		return new ResponseEntity<>(inventoryService.get(inventoryId), HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<InventoryDTO> addInventory(@Valid @RequestBody Inventory inventory, Errors errors) {
+	public ResponseEntity<InventoryDTO> addInventory(@Valid @RequestBody InventoryDTO inventory, Errors errors) {
 
 		log.info("Request to create a new inventory");
 		if (errors.hasErrors()) {
@@ -83,7 +76,7 @@ public class InventoryController {
 	}
 
 	@PutMapping
-	public ResponseEntity<?> updateInventory(@Valid @RequestBody Inventory inventory, Errors errors) {
+	public ResponseEntity<?> updateInventory(@Valid @RequestBody InventoryDTO inventory, Errors errors) {
 		log.info("Request to update inventory with id : {}", inventory.getInventoryId());
 		if (errors.hasErrors()) {
 

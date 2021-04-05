@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.cybage.inventory.models.Inventory;
+import com.cybage.inventory.utils.InventoryTestData;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -81,6 +82,7 @@ public class InventoryRepositoryTest {
 		Inventory inventory = new Inventory();
 		inventory.setInventoryName("Inventory 1");
 		inventory.setQuantity(12);
+		
 		entityManager.persist(inventory);
 		entityManager.flush();
 

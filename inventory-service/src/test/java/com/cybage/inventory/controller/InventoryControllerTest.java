@@ -3,16 +3,18 @@ package com.cybage.inventory.controller;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -21,8 +23,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
@@ -33,14 +37,15 @@ import org.springframework.validation.Errors;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.cybage.inventory.dto.InventoryDTO;
+import com.cybage.inventory.exception.InventoryExceptionHandler;
+import com.cybage.inventory.exception.RecordNotFoundException;
 import com.cybage.inventory.models.Inventory;
 import com.cybage.inventory.service.impl.InventoryServiceImpl;
 import com.cybage.inventory.utils.InventoryTestData;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.log4j.Log4j2;
 
-//@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-//@RunWith(SpringJUnit4ClassRunner.class)
 @Log4j2
 @WebMvcTest
 public class InventoryControllerTest {
@@ -75,13 +80,15 @@ public class InventoryControllerTest {
 		MockitoAnnotations.initMocks(this);
 		log.debug(context);
 //		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		mockMvc = MockMvcBuilders.standaloneSetup(inventoryControllerTest).build();
+		mockMvc = MockMvcBuilders.standaloneSetup(inventoryControllerTest)
+				.setControllerAdvice(InventoryExceptionHandler.class).build();
 	}
 
 	private String getLocalhostURL(Long id) {
 
 		return getLocalhostURL() + "/" + id;
 	}
+
 
 	private String getLocalhostURL() {
 
@@ -113,27 +120,37 @@ public class InventoryControllerTest {
 	public void testGetAllInventory_2() throws Exception {
 		List<InventoryDTO> inventories = new ArrayList<>();
 		Mockito.when(inventoryService.listAll()).thenReturn(inventories);
-		
-		mockMvc.perform(get(getLocalhostURL()).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNoContent())
-				.andReturn();
 
+		mockMvc.perform(get(getLocalhostURL()).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNoContent()).andReturn();
+
+	}
+
+	@Test
+	public void testGetAllInventory_3() throws Exception {
+		Long invId = 1l;
+		Mockito.when(inventoryService.get(invId)).thenThrow(new RecordNotFoundException(invId));
+
+		mockMvc.perform(get(getLocalhostURL(invId)).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotFound())
+				.andExpect(result -> assertTrue(result.getResolvedException() instanceof RecordNotFoundException))
+				.andExpect(result -> assertEquals(String.format("Record with Id %d not found", invId),
+						result.getResolvedException().getMessage()));
+		log.debug("-------------------");
 	}
 
 	@Test
 	public void testAddInventory() throws Exception {
 		InventoryDTO invDTO = InventoryTestData.createInventoryDTO_1();
-		Inventory inv = InventoryTestData.createInventory_New();
-		when(inventoryService.save(inv)).thenReturn(invDTO);
+		when(inventoryService.save(invDTO)).thenReturn(invDTO);
 
-		String invJson = mapper.writeValueAsString(inv);
+		String invJson = mapper.writeValueAsString(invDTO);
 		log.debug("xxxxxxxxxxxxxxxxxx" + invJson);
 		RequestBuilder builder = MockMvcRequestBuilders.post(getLocalhostURL()).accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON).characterEncoding(UTF_8).content(invJson);
 		ResultActions result = mockMvc.perform(builder).andDo(print()).andExpect(status().isCreated());// .andReturn();
 		log.debug(result);
-		result.andDo(print());
-//		result.andExpect(jsonPath("$", notNullValue())).andDo(print());
-//		log.debug(result.getResponse().getContentAsString());
+		result.andExpect(jsonPath("$", notNullValue())).andDo(print());
 
 		log.debug("..............");
 	}

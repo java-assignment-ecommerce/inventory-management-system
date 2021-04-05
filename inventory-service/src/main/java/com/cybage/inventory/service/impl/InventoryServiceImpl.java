@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import com.cybage.inventory.exception.RecordNotFoundException;
 import com.cybage.inventory.models.Inventory;
 import com.cybage.inventory.repository.InventoryRepository;
 import com.cybage.inventory.service.InventoryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -22,6 +24,9 @@ public class InventoryServiceImpl implements InventoryService {
 
 	@Autowired
 	private InventoryRepository inventoryRepository;
+	
+	@Autowired
+	private ModelMapper modelMapper;
 
 	@Override
 	public List<InventoryDTO> listAll() {
@@ -48,15 +53,17 @@ public class InventoryServiceImpl implements InventoryService {
 	}
 
 	@Override
-	public InventoryDTO save(Inventory inventory) {
+	public InventoryDTO save(InventoryDTO inventoryDto) {
 		log.info("Saving new inventory");
+		Inventory inventory = modelMapper.map(inventoryDto, Inventory.class);
 		Inventory inv = inventoryRepository.save(inventory);
 		return new InventoryDTO(inv);
 	}
 
 	@Override
-	public InventoryDTO update(Inventory inventory) {
-		log.info("updating inventory with id : {}", inventory.getInventoryId());
+	public InventoryDTO update(InventoryDTO inventoryDto) {
+		log.info("updating inventory with id : {}", inventoryDto.getInventoryId());
+		Inventory inventory = modelMapper.map(inventoryDto, Inventory.class);
 		getInventory(inventory.getInventoryId());
 
 		Inventory inv = inventoryRepository.save(inventory);

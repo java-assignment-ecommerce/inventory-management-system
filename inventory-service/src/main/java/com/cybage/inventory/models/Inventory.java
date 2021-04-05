@@ -14,6 +14,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,14 +29,13 @@ import lombok.experimental.Accessors;
 
 @Getter
 @Setter
-@Accessors(chain = true)
+//@Accessors(chain = true)
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @ToString
+@EqualsAndHashCode
 public class Inventory implements Serializable {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2298375083377697514L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

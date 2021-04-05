@@ -3,6 +3,7 @@ package com.cybage.inventory.service.impl;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,7 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.modelmapper.ModelMapper;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.cybage.inventory.dto.InventoryDTO;
@@ -28,26 +29,20 @@ import com.cybage.inventory.repository.InventoryRepository;
 import com.cybage.inventory.utils.InventoryTestData;
 
 @RunWith(SpringRunner.class)
-//@RunWith(MockitoJUnitRunner.class)
-//@SpringBootTest
 public class InventoryServiceImplTest {
 
 	@Mock
 	private InventoryRepository inventoryRepository;
-
+	@Mock
+	InventoryDTO inventoryDTO;
 	@InjectMocks
 	private InventoryServiceImpl inventoryService;
 
-	@Mock
-	InventoryDTO inventoryDTO;
-//	@Autowired
+	ModelMapper modelMapper;
 
 	@Before
 	public void setUp() {
-//		modelMapper.getConfiguration().setFieldMatchingEnabled(true) ;
-//		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-//		modelMapper.addMappings(new Inventory());
-//		new ModelMapper();
+		modelMapper = spy(new ModelMapper());
 		MockitoAnnotations.initMocks(this);
 	}
 
@@ -55,7 +50,9 @@ public class InventoryServiceImplTest {
 	public void testGetAllInventory() {
 
 		Mockito.when(inventoryRepository.findAll()).thenReturn(InventoryTestData.createInventory2Records());
+
 		List<InventoryDTO> inventoryFromService = inventoryService.listAll();
+
 		assertNotNull(inventoryFromService);
 		assertEquals(2, inventoryFromService.size());
 		InventoryDTO s = inventoryFromService.get(0);
@@ -70,9 +67,10 @@ public class InventoryServiceImplTest {
 	public void testGetAllInventory_NoRecords() {
 
 		Mockito.when(inventoryRepository.findAll()).thenReturn(new ArrayList<>());
-		List<InventoryDTO> inventoryFromService = inventoryService.listAll();
-		assertNotNull(inventoryFromService);
 
+		List<InventoryDTO> inventoryFromService = inventoryService.listAll();
+
+		assertNotNull(inventoryFromService);
 		assertTrue(inventoryFromService.isEmpty());
 		verify(inventoryRepository, times(1)).findAll();
 	}
@@ -102,9 +100,13 @@ public class InventoryServiceImplTest {
 	@Test
 	public void testCreateInventory() {
 
+		InventoryDTO invDto = InventoryTestData.createInventoryDTO_1();
 		Inventory inv = InventoryTestData.createInventory_1();
-		when(inventoryRepository.save(inv)).thenReturn(inv);
-		inventoryService.save(inv);
+
+		when(inventoryRepository.save(Mockito.any())).thenReturn(inv);
+
+		inventoryService.save(invDto);
+
 		verify(inventoryRepository, times(1)).save(inv);
 	}
 }

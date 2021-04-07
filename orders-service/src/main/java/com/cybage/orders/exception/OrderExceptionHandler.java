@@ -26,7 +26,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @ControllerAdvice
 @ResponseBody
-public class InventoryExceptionHandler extends ResponseEntityExceptionHandler {
+public class OrderExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@Override
 	protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
